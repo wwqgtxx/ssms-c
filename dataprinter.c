@@ -247,16 +247,16 @@ int ssms_dataprinter_printScorePtrVec(SSMS_SCORE_PTR_VEC scores) {
 }
 
 
-int ssms_datapainter_printScorePassSubsection(int *subsection) {
-    int i = 1;
-    printf("登记考生人数： %d\n", subsection[0]);
+int ssms_datapainter_printScorePassSubsectionTable(int *subsection) {
+    int i = 0;
+    printf("登记考生人数： %d\n", subsection[12]);
     printf(" -----------------------------------------------------------------------------------\n");
     printf("考生成绩分布表：\n");
     printf("             -----------------------------------------------------\n");
     printf("            |%-8s|%-8s|%-8s|%-8s|%-8s|%-8s|\n", "0分", "1-9分", "10-19分", "20-29分", "30-39分", "40-49分");
     printf("             -----------------------------------------------------\n");
     printf("            ");
-    for (; i < 7; i++) {
+    for (; i < 6; i++) {
         printf("|%-8d", subsection[i]);
     }
     printf("|\n");
@@ -266,11 +266,52 @@ int ssms_datapainter_printScorePassSubsection(int *subsection) {
     printf("            |%-8s|%-8s|%-8s|%-8s|%-8s|%-8s|\n", "50-59分", "60-69分", "71-79分", "80-89分", "90-99分", "100分");
     printf("             -----------------------------------------------------\n");
     printf("            ");
-    for (; i < 13; i++) {
+    for (; i < 12; i++) {
         printf("|%-8d", subsection[i]);
     }
     printf("|\n");
     printf("             -----------------------------------------------------\n");
     printf(" -----------------------------------------------------------------------------------\n");
+    return 0;
+}
+
+
+int ssms_datapainter_printScorePassSubsectionGraph(int *subsection) {
+    int tmp_arr[10];
+    int max = subsection[0];
+    for(int i=1;i<12;i++){
+        if (subsection[i]>max){
+            max = subsection[i];
+        }
+    }
+    tmp_arr[0] = (int)(((double)(subsection[0]+subsection[1]))/max*19);
+    tmp_arr[1] = (int)(((double)subsection[2])/max*19);
+    tmp_arr[2] = (int)(((double)subsection[3])/max*19);
+    tmp_arr[3] = (int)(((double)subsection[4])/max*19);
+    tmp_arr[4] = (int)(((double)subsection[5])/max*19);
+    tmp_arr[5] = (int)(((double)subsection[6])/max*19);
+    tmp_arr[6] = (int)(((double)subsection[7])/max*19);
+    tmp_arr[7] = (int)(((double)subsection[8])/max*19);
+    tmp_arr[8] = (int)(((double)subsection[9])/max*19);
+    tmp_arr[9] = (int)(((double)(subsection[10]+subsection[11]))/max*19);
+
+
+    printf("       -------------------------------------------------------------------\n");
+    for(int i=19;i>0;i--){
+        printf("%6d|    ",(int)((double)max/19*i));
+        for(int j=0;j<10;j++){
+            if ((tmp_arr[j]-i)>=0){
+                printf("■■■");
+            }
+            else{
+                printf("　　　");
+            }
+        }
+        printf("   |\n");
+    }
+//    printf("      |    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   |\n");
+    printf("      | --+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-- |\n");
+    printf("      |  %-6s%-6s%-6s%-6s%-6s%-6s%-6s%-6s%-6s%-6s%-5s|\n", "0分", "10分", "20分", "30分", "40分", "50分", "60分", "70分", "80分", "90分", "100分");
+    printf("      ---------------------------------------------------------------------\n");
     return 0;
 }

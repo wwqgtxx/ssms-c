@@ -17,6 +17,7 @@ int ssms_dataprinter_printStudentPtrVec(SSMS_STUDENT_PTR_VEC students);
 int ssms_dataprinter_printScore(SSMS_SCORE_PTR score);
 int ssms_dataprinter_printScorePtrVecWithSelectCallback(SSMS_SCORE_PTR_VEC scores,SSMS_DATAPRINTER_PRINTSCOREPRTVEC_CALLBACK callback);
 int ssms_dataprinter_printScorePtrVec(SSMS_SCORE_PTR_VEC scores);
-int ssms_datapainter_printScorePassSubsection(int *subsection);
+int ssms_datapainter_printScorePassSubsectionTable(int *subsection);
+int ssms_datapainter_printScorePassSubsectionGraph(int *subsection);
 
 #endif //SSMS_DATAPRINTER_H

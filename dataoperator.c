@@ -503,7 +503,7 @@ int ssms_getScorePassSubsection(int *subsection) {
     if (ret == SQLITE_OK) {
         if (n_column == 13 && n_row == 1) {
             index = n_column;
-            for (int i = 0; i < 13; i++) {
+            for (int i = 12; i >= 0; i--) {
                 subsection[i] = atoi(db_result[index]);
                 index++;
             }
