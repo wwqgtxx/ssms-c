@@ -41,6 +41,7 @@ const char *sql_select_all_score_data_order_by_score = "SELECT ID,STUDENT_ID,SCO
 const char *sql_delete_all_score_data = "DELETE FROM SCORE";
 const char *sql_select_score_avg_data = "SELECT AVG(SCORE) FROM SCORE";
 const char *sql_select_score_pass_data = "SELECT SUM(CASE WHEN SCORE>=60 THEN 1.0 ELSE 0.0 END)/COUNT(*) FROM SCORE";
+const char *sql_select_score_not_pass_name_data = "SELECT DISTINCT B.NAME FROM SCORE AS A,STUDENT AS B WHERE SCORE<60 AND B.ID=A.STUDENT_ID";
 const char *sql_select_score_subsection_data = "select count(*),\n"
         "count(case SCORE when 100 then 1 end),\n"
         "count(case when SCORE between 90 and 99 then 1 end),\n"
@@ -316,6 +317,16 @@ int ssms_printStudentsFromDb() {
     return 0;
 }
 
+int ssms_freeNamesVec(SSMS_NAMES_VEC *names) {
+    char* name;
+    int i;
+    vec_foreach(names, name, i) {
+            free(name);
+        }
+    vec_deinit(names);
+    return 0;
+}
+
 SSMS_SCORE_PTR ssms_newScore() {
     return (SSMS_SCORE *) malloc(sizeof(SSMS_SCORE));
 }
@@ -489,6 +500,26 @@ double ssms_getScorePassPercent() {
         if (n_column == 1 && n_row == 1) {
             index = n_column;
             result = atof(db_result[index]);
+        }
+    }
+    sqlite3_free_table(db_result);
+    sqlite3_free(errmsg);
+    return result;
+}
+
+SSMS_NAMES_VEC ssms_getScoreNotPassNames() {
+    SSMS_NAMES_VEC result;
+    vec_init(&result);
+    char **db_result;
+    int n_row, n_column, index;
+    ret = sqlite3_get_table(db, sql_select_score_not_pass_name_data, &db_result, &n_row, &n_column, &errmsg);
+    if (ret == SQLITE_OK) {
+        if (n_column == 1){
+            index = n_column;
+            for(int i=0;i<n_row;i++){
+                vec_push(&result,ssms_common_strcpy(db_result[index]));
+                index++;
+            }
         }
     }
     sqlite3_free_table(db_result);

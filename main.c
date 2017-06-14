@@ -109,7 +109,7 @@ int main() {
 
     int *subsection = ssms_common_newIntArray(13);
     ssms_getScorePassSubsection(subsection);
-    ssms_datapainter_printScorePassSubsectionTable(subsection);
+    ssms_dataprinter_printScorePassSubsectionTable(subsection);
     free(subsection);
 
     ssms_freeStudentPtr(student);

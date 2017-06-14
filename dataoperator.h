@@ -56,6 +56,9 @@ int ssms_updateStudent(SSMS_STUDENT *student);
 int ssms_deleteStudents();
 int ssms_printStudentsFromDb();
 
+typedef vec_t(char*) SSMS_NAMES_VEC;
+int ssms_freeNamesVec(SSMS_NAMES_VEC *names);
+
 SSMS_SCORE_PTR ssms_newScore();
 int ssms_freeScorePtr(SSMS_SCORE_PTR score);
 int ssms_freeScorePtrVec(SSMS_SCORE_PTR_VEC *scores);
@@ -71,7 +74,7 @@ int ssms_deleteScores();
 int ssms_printScoreFromDb();
 double ssms_getScoreAvg();
 double ssms_getScorePassPercent();
-
+SSMS_NAMES_VEC ssms_getScoreNotPassNames();
 int ssms_getScorePassSubsection(int *subsection);
 
 

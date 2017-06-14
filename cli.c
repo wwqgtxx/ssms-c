@@ -298,21 +298,7 @@ int ssms_cli_showGradeStat() {
     printf("及格率： %lf%%\n", ssms_getScorePassPercent() * 1e2);
     int *subsection = ssms_common_newIntArray(13);
     ssms_getScorePassSubsection(subsection);
-    ssms_datapainter_printScorePassSubsectionTable(subsection);
-    free(subsection);
-    printf("                               ");
-    ssms_console_setDifferentColor();
-    printf("按任意键返回主菜单");
-    ssms_console_setNormalColor();
-    printf("\n");
-    getch();
-    return 0;
-}
-
-int ssms_cli_showGradeStatGraph() {
-    int *subsection = ssms_common_newIntArray(13);
-    ssms_getScorePassSubsection(subsection);
-    ssms_datapainter_printScorePassSubsectionGraph(subsection);
+    ssms_dataprinter_printScorePassSubsectionTable(subsection);
     free(subsection);
     printf("                               ");
     ssms_console_setDifferentColor();
@@ -327,6 +313,27 @@ int ssms_cli_showScoreRanking() {
     SSMS_SCORE_PTR_VEC scores = ssms_getAllScoresOrderByScore();
     ssms_dataprinter_printScorePtrVec(scores);
     ssms_freeScorePtrVec(&scores);
+    return 0;
+}
+
+int ssms_cli_showNoPassNames() {
+    SSMS_NAMES_VEC names = ssms_getScoreNotPassNames();
+    ssms_dataprinter_printScoreNotPassNames(names);
+    ssms_freeNamesVec(&names);
+    return 0;
+}
+
+int ssms_cli_showGradeStatGraph() {
+    int *subsection = ssms_common_newIntArray(13);
+    ssms_getScorePassSubsection(subsection);
+    ssms_dataprinter_printScorePassSubsectionGraph(subsection);
+    free(subsection);
+    printf("                               ");
+    ssms_console_setDifferentColor();
+    printf("按任意键返回主菜单");
+    ssms_console_setNormalColor();
+    printf("\n");
+    getch();
     return 0;
 }
 
@@ -361,6 +368,9 @@ int ssms_cli_main_loop() {
                 break;
             case 10:
                 ssms_cli_showScoreRanking();
+                break;
+            case 11:
+                ssms_cli_showNoPassNames();
                 break;
             case 12:
                 ssms_cli_showGradeStatGraph();
