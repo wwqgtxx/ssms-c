@@ -27,6 +27,8 @@ typedef struct {
     sqlite_int64 student_id;
     double score;
     int year;
+    char* student_name;
+    int need_free;
 } SSMS_SCORE;
 
 typedef SSMS_SCORE* SSMS_SCORE_PTR;
@@ -43,13 +45,12 @@ int ssms_freeStudentPtrVec(SSMS_STUDENT_PTR_VEC *students);
 int ssms_insertStudent(SSMS_STUDENT *student);
 int ssms_deleteStudent(char* name);
 SSMS_STUDENT_PTR ssms_getStudentFromPreparedStmt(sqlite3_stmt *stmt);
-SSMS_STUDENT_PTR ssms_getStudent(char *name);
+SSMS_STUDENT_PTR ssms_getStudentByName(char *name);
+SSMS_STUDENT_PTR ssms_getStudentById(sqlite_int64 id);
 SSMS_STUDENT_PTR_VEC ssms_getStudentsPrtVecByStmt(sqlite3_stmt* stmt);
 SSMS_STUDENT_PTR_VEC ssms_getAllStudents();
 int ssms_updateStudent(SSMS_STUDENT *student);
 int ssms_deleteStudents();
-int ssms_printStudent(SSMS_STUDENT *student);
-int ssms_printStudentPtrVec(SSMS_STUDENT_PTR_VEC students);
 int ssms_printStudentsFromDb();
 
 SSMS_SCORE_PTR ssms_newScore();
@@ -64,8 +65,6 @@ SSMS_SCORE_PTR_VEC ssms_getAllScores();
 int ssms_updateScore(SSMS_SCORE_PTR score);
 int ssms_deleteScore(sqlite_int64 id);
 int ssms_deleteScores();
-int ssms_printScore(SSMS_SCORE_PTR score);
-int ssms_printScorePtrVec(SSMS_SCORE_PTR_VEC scores);
 int ssms_printScoreFromDb();
 double ssms_getScoreAvg();
 double ssms_getScorePassPercent();

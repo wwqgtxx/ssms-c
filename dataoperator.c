@@ -18,7 +18,8 @@ const char *sql_create_student_table = "CREATE TABLE IF NOT EXISTS STUDENT("
         "MAJOR TEXT"
         ")";
 const char *sql_insert_student_data = "INSERT INTO STUDENT(NAME,SEX,AGE,MAJOR) VALUES(?,?,?,?)";
-const char *sql_select_student_data = "SELECT ID,NAME,SEX,AGE,MAJOR FROM STUDENT WHERE NAME=?";
+const char *sql_select_student_data_by_name = "SELECT ID,NAME,SEX,AGE,MAJOR FROM STUDENT WHERE NAME=?";
+const char *sql_select_student_data_by_id = "SELECT ID,NAME,SEX,AGE,MAJOR FROM STUDENT WHERE ID=?";
 const char *sql_update_student_data = "UPDATE STUDENT SET NAME=?,SEX=?,AGE=?,MAJOR=? WHERE ID=?";
 const char *sql_delete_student_data = "DELETE FROM STUDENT WHERE NAME=?";
 const char *sql_select_all_student_data = "SELECT ID,NAME,SEX,AGE,MAJOR FROM STUDENT";
@@ -31,7 +32,7 @@ const char *sql_create_score_table = "CREATE TABLE IF NOT EXISTS SCORE("
         "YEAR INTEGER"
         ")";
 const char *sql_insert_score_data = "INSERT INTO SCORE(STUDENT_ID,SCORE,YEAR) VALUES(?,?,?)";
-const char *sql_select_score_data = "SELECT ID,STUDENT_ID,SCORE,YEAR FROM SCORE WHERE STUDENT_ID=? AND YEAR=?";
+const char *sql_select_score_data = "SELECT A.ID,A.STUDENT_ID,A.SCORE,A.YEAR,B.NAME FROM SCORE AS A,STUDENT AS B WHERE A.STUDENT_ID=? AND A.YEAR=? AND B.ID=A.STUDENT_ID";
 const char *sql_update_score_data = "UPDATE SCORE SET SCORE=?,YEAR=? WHERE ID=?";
 const char *sql_delete_score_data = "DELETE FROM SCORE WHERE ID=?";
 const char *sql_select_all_score_data = "SELECT ID,STUDENT_ID,SCORE,YEAR FROM SCORE";
@@ -55,7 +56,8 @@ const char *sql_select_score_subsection_data = "select count(*),\n"
 
 
 sqlite3_stmt *insert_student_data_stmt;
-sqlite3_stmt *select_student_data_stmt;
+sqlite3_stmt *select_student_data_by_name_stmt;
+sqlite3_stmt *select_student_data_by_id_stmt;
 sqlite3_stmt *update_student_data_stmt;
 sqlite3_stmt *delete_student_data_stmt;
 sqlite3_stmt *select_all_student_data_stmt;
@@ -83,7 +85,8 @@ int ssms_initDatabase() {
 
 int ssms_closeDatabase() {
     sqlite3_finalize(insert_student_data_stmt);
-    sqlite3_finalize(select_student_data_stmt);
+    sqlite3_finalize(select_student_data_by_name_stmt);
+    sqlite3_finalize(select_student_data_by_id_stmt);
     sqlite3_finalize(update_student_data_stmt);
     sqlite3_finalize(delete_student_data_stmt);
     sqlite3_finalize(select_all_student_data_stmt);
@@ -117,7 +120,8 @@ int ssms_initTable() {
 
 int ssms_initStmt() {
     sqlite3_prepare_v2(db, sql_insert_student_data, -1, &insert_student_data_stmt, 0);
-    sqlite3_prepare_v2(db, sql_select_student_data, -1, &select_student_data_stmt, 0);
+    sqlite3_prepare_v2(db, sql_select_student_data_by_name, -1, &select_student_data_by_name_stmt, 0);
+    sqlite3_prepare_v2(db, sql_select_student_data_by_id, -1, &select_student_data_by_name_stmt, 0);
     sqlite3_prepare_v2(db, sql_update_student_data, -1, &update_student_data_stmt, 0);
     sqlite3_prepare_v2(db, sql_delete_student_data, -1, &delete_student_data_stmt, 0);
     sqlite3_prepare_v2(db, sql_select_all_student_data, -1, &select_all_student_data_stmt, 0);
@@ -136,8 +140,8 @@ SSMS_STUDENT_PTR ssms_newStudent() {
 
 int ssms_freeStudentPtr(SSMS_STUDENT_PTR student) {
     if (student->need_free) {
-        free(student->name);
-        free(student->major);
+        if (student->name != NULL) free(student->name);
+        if (student->major != NULL) free(student->major);
     }
     free(student);
     return 0;
@@ -147,8 +151,8 @@ int ssms_freeStudentPtrVec(SSMS_STUDENT_PTR_VEC *students) {
     SSMS_STUDENT_PTR student;
     int i;
     vec_foreach(students, student, i) {
-        ssms_freeStudentPtr(student);
-    }
+            ssms_freeStudentPtr(student);
+        }
     vec_deinit(students);
     return 0;
 }
@@ -179,21 +183,28 @@ SSMS_STUDENT_PTR ssms_getStudentFromPreparedStmt(sqlite3_stmt *stmt) {
     if (ret == SQLITE_ROW) {
         SSMS_STUDENT *student = ssms_newStudent();
         student->id = sqlite3_column_int64(stmt, 0);
-        student->name = ssms_strcpy((char *) sqlite3_column_text(stmt, 1));
+        student->name = ssms_common_strcpy((char *) sqlite3_column_text(stmt, 1));
         student->sex = (SSMS_SEX) sqlite3_column_int(stmt, 2);
         student->age = sqlite3_column_int(stmt, 3);
-        student->major = ssms_strcpy((char *) sqlite3_column_text(stmt, 4));
+        student->major = ssms_common_strcpy((char *) sqlite3_column_text(stmt, 4));
         student->need_free = 1;
         return student;
     }
     return NULL;
 }
 
-SSMS_STUDENT_PTR ssms_getStudent(char *name) {
-    sqlite3_reset(select_student_data_stmt);
-    sqlite3_bind_text(select_student_data_stmt, 1, name, (int) strlen(name), NULL);
-    ret = sqlite3_step(select_student_data_stmt);
-    return ssms_getStudentFromPreparedStmt(select_student_data_stmt);
+SSMS_STUDENT_PTR ssms_getStudentByName(char *name) {
+    sqlite3_reset(select_student_data_by_name_stmt);
+    sqlite3_bind_text(select_student_data_by_name_stmt, 1, name, (int) strlen(name), NULL);
+    ret = sqlite3_step(select_student_data_by_name_stmt);
+    return ssms_getStudentFromPreparedStmt(select_student_data_by_name_stmt);
+}
+
+SSMS_STUDENT_PTR ssms_getStudentById(sqlite_int64 id) {
+    sqlite3_reset(select_student_data_by_id_stmt);
+    sqlite3_bind_int64(select_student_data_by_id_stmt, 1, id);
+    ret = sqlite3_step(select_student_data_by_id_stmt);
+    return ssms_getStudentFromPreparedStmt(select_student_data_by_id_stmt);
 }
 
 SSMS_STUDENT_PTR_VEC ssms_getStudentsPrtVecByStmt(sqlite3_stmt *stmt) {
@@ -255,109 +266,6 @@ int ssms_deleteStudents() {
     return 0;
 }
 
-int ssms_printStudent(SSMS_STUDENT_PTR student) {
-    char *sex;
-    switch (student->sex) {
-        case MALE:
-            sex = "男";
-            break;
-        case FEMALE:
-            sex = "女";
-            break;
-        default:
-            sex = "未知";
-            break;
-    }
-    printf(" -------------------------------------------------------------------------------\n");
-    printf("|%-15s|%-15s|%-15s|%-15s|%-15s|\n", "id", "姓名", "性别", "年龄", "专业/学院");
-    printf(" -------------------------------------------------------------------------------\n");
-    printf("|%-15lld|%-15s|%-15s|%-15d|%-15s|\n", student->id, student->name, sex, student->age, student->major);
-    printf(" -------------------------------------------------------------------------------\n");
-    return 0;
-}
-
-int ssms_printStudentPtrVec(SSMS_STUDENT_PTR_VEC students) {
-    SSMS_STUDENT_PTR student;
-    int num = 0;
-    int i;
-    char *sex;
-    printf(" -------------------------------------------------------------------------------\n");
-    printf("|%-15s|%-15s|%-15s|%-15s|%-15s|\n", "id", "姓名", "性别", "年龄", "专业/学院");
-    printf(" -------------------------------------------------------------------------------\n");
-    if (students.length > 0) {
-        vec_foreach(&students, student, i) {
-            switch (student->sex) {
-                case MALE:
-                    sex = "男";
-                    break;
-                case FEMALE:
-                    sex = "女";
-                    break;
-                default:
-                    sex = "未知";
-                    break;
-            }
-            printf("|%-15lld|%-15s|%-15s|%-15d|%-15s|\n", student->id, student->name, sex, student->age,
-                   student->major);
-            num++;
-            if (num % 19 == 0 || i == students.length - 1) {
-                printf(" -------------------------------------------------------------------------------\n");
-                printf("提示：按方向键可上下翻页，按ESC键可退出显示。\n");
-                p2:
-                while (1) {
-                    switch (getch()) {
-                        case 0xe0:
-                            switch (getch()) {
-                                case 72://up
-                                    if (i >= 19) {
-//                                            ssms_cleanConsole();
-                                        num = 0;
-                                        i -= 20;
-                                        printf(" -------------------------------------------------------------------------------\n");
-                                        printf("|%-15s|%-15s|%-15s|%-15s|%-15s|\n", "id", "姓名", "性别", "年龄",
-                                               "专业/学院");
-                                        printf(" -------------------------------------------------------------------------------\n");
-                                        goto p1;
-                                    }
-                                    break;
-                                case 80://down
-//                                        ssms_cleanConsole();
-                                    if (i < students.length - 1) {
-                                        num = 0;
-                                        i -= 18;
-                                        printf(" -------------------------------------------------------------------------------\n");
-                                        printf("|%-15s|%-15s|%-15s|%-15s|%-15s|\n", "id", "姓名", "性别", "年龄",
-                                               "专业/学院");
-                                        printf(" -------------------------------------------------------------------------------\n");
-                                        goto p1;
-                                    }
-                                    break;
-                                case 75: //left
-                                    break;
-                                case 77://down
-                                    break;
-                                default:
-                                    break;
-                            }
-                            break;
-                        case 0x1b://esc
-                            ssms_cleanConsole();
-                            return 0;
-                        default:
-                            break;
-                    }
-
-                }
-                p1:
-                continue;
-            }
-        }
-    } else {
-        printf("null");
-    }
-    return 0;
-}
-
 int ssms_printStudentsFromDb() {
     char **db_result;
     int j, n_row, n_column, index;
@@ -384,6 +292,9 @@ SSMS_SCORE_PTR ssms_newScore() {
 }
 
 int ssms_freeScorePtr(SSMS_SCORE_PTR score) {
+    if (score->need_free) {
+        free(score->student_name);
+    }
     free(score);
     return 0;
 }
@@ -392,8 +303,8 @@ int ssms_freeScorePtrVec(SSMS_SCORE_PTR_VEC *scores) {
     SSMS_SCORE_PTR score;
     int i;
     vec_foreach(scores, score, i) {
-        ssms_freeScorePtr(score);
-    }
+            ssms_freeScorePtr(score);
+        }
     vec_deinit(scores);
     return 0;
 }
@@ -426,6 +337,8 @@ SSMS_SCORE_PTR ssms_getScoreFromPreparedStmt(sqlite3_stmt *stmt) {
         score->student_id = sqlite3_column_int64(stmt, 1);
         score->score = sqlite3_column_double(stmt, 2);
         score->year = sqlite3_column_int(stmt, 3);
+        score->student_name = ssms_common_strcpy((char *) sqlite3_column_text(stmt, 4));
+        score->need_free = score->student_name != NULL;
         return score;
     }
     return NULL;
@@ -501,84 +414,6 @@ int ssms_deleteScores() {
     return 0;
 }
 
-int ssms_printScore(SSMS_SCORE_PTR score) {
-    printf(" ---------------------------------------------------------------\n");
-    printf("|%-15s|%-15s|%-15s|%-15s|\n", "id", "学生id", "分数", "学年");
-    printf(" ---------------------------------------------------------------\n");
-    printf("|%-15lld|%-15lld|%-15lf|%-15d|\n", score->id, score->student_id, score->score, score->year);
-    printf(" ---------------------------------------------------------------\n");
-    return 0;
-}
-
-int ssms_printScorePtrVec(SSMS_SCORE_PTR_VEC scores) {
-    SSMS_SCORE_PTR score;
-    int num = 0;
-    int i;
-    char *sex;
-    printf(" ---------------------------------------------------------------\n");
-    printf("|%-15s|%-15s|%-15s|%-15s|\n", "id", "学生id", "分数", "学年");
-    printf(" ---------------------------------------------------------------\n");
-    if (scores.length > 0) {
-        vec_foreach(&scores, score, i) {
-
-            printf("|%-15lld|%-15lld|%-15lf|%-15d|\n", score->id, score->student_id, score->score, score->year);
-            num++;
-            if (num % 19 == 0 || i == scores.length - 1) {
-                printf(" ---------------------------------------------------------------\n");
-                printf("提示：按方向键可上下翻页，按ESC键可退出显示。\n");
-                p2:
-                while (1) {
-                    switch (getch()) {
-                        case 0xe0:
-                            switch (getch()) {
-                                case 72://up
-                                    if (i >= 19) {
-//                                            ssms_cleanConsole();
-                                        num = 0;
-                                        i -= 20;
-                                        printf(" ---------------------------------------------------------------\n");
-                                        printf("|%-15s|%-15s|%-15s|%-15s|\n", "id", "学生id", "分数", "学年");
-                                        printf(" ---------------------------------------------------------------\n");
-                                        goto p1;
-                                    }
-                                    break;
-                                case 80://down
-//                                        ssms_cleanConsole();
-                                    if (i < scores.length - 1) {
-                                        num = 0;
-                                        i -= 18;
-                                        printf(" ---------------------------------------------------------------\n");
-                                        printf("|%-15s|%-15s|%-15s|%-15s|\n", "id", "学生id", "分数", "学年");
-                                        printf(" ---------------------------------------------------------------\n");
-                                        goto p1;
-                                    }
-                                    break;
-                                case 75: //left
-                                    break;
-                                case 77://down
-                                    break;
-                                default:
-                                    break;
-                            }
-                            break;
-                        case 0x1b://esc
-                            ssms_cleanConsole();
-                            return 0;
-                        default:
-                            break;
-                    }
-
-                }
-                p1:
-                continue;
-            }
-        }
-    } else {
-        printf("null");
-    }
-    return 0;
-}
-
 int ssms_printScoreFromDb() {
     char **db_result;
     int j, n_row, n_column, index;
@@ -632,7 +467,6 @@ double ssms_getScorePassPercent() {
     return result;
 }
 
-
 int ssms_getScorePassSubsection(int *subsection) {
     char **db_result;
     int n_row, n_column, index;
@@ -640,7 +474,7 @@ int ssms_getScorePassSubsection(int *subsection) {
     if (ret == SQLITE_OK) {
         if (n_column == 13 && n_row == 1) {
             index = n_column;
-            for (int i=0;i<13;i++){
+            for (int i = 0; i < 13; i++) {
                 subsection[i] = atoi(db_result[index]);
                 index++;
             }
@@ -654,28 +488,28 @@ int ssms_getScorePassSubsection(int *subsection) {
 
 int ssms_printScorePassSubsection(int *subsection) {
     int i = 1;
-    printf(" -----------------------------------------------------\n");
     printf("登记考生人数： %d\n", subsection[0]);
-    printf(" -----------------------------------------------------\n");
-    printf("|%-8s|%-8s|%-8s|%-8s|%-8s|%-8s|\n", "0分", "1-9分", "10-19分", "20-29分", "30-39分", "40-49分");
-    printf(" -----------------------------------------------------\n");
+    printf(" -----------------------------------------------------------------------------------\n");
+    printf("考生成绩分布表：\n");
+    printf("             -----------------------------------------------------\n");
+    printf("            |%-8s|%-8s|%-8s|%-8s|%-8s|%-8s|\n", "0分", "1-9分", "10-19分", "20-29分", "30-39分", "40-49分");
+    printf("             -----------------------------------------------------\n");
+    printf("            ");
     for (; i < 7; i++) {
         printf("|%-8d", subsection[i]);
     }
     printf("|\n");
-    printf(" -----------------------------------------------------\n");
+    printf("             -----------------------------------------------------\n");
     printf("\n");
-    printf(" -----------------------------------------------------\n");
-    printf("|%-8s|%-8s|%-8s|%-8s|%-8s|%-8s|\n", "50-59分", "60-69分", "71-79分", "80-89分", "90-99分", "100分");
-    printf(" -----------------------------------------------------\n");
+    printf("             -----------------------------------------------------\n");
+    printf("            |%-8s|%-8s|%-8s|%-8s|%-8s|%-8s|\n", "50-59分", "60-69分", "71-79分", "80-89分", "90-99分", "100分");
+    printf("             -----------------------------------------------------\n");
+    printf("            ");
     for (; i < 13; i++) {
         printf("|%-8d", subsection[i]);
     }
     printf("|\n");
-    printf(" -----------------------------------------------------\n");
-    printf("\n");
-//    for(;i<12;i++){
-//
-//    }
+    printf("             -----------------------------------------------------\n");
+    printf(" -----------------------------------------------------------------------------------\n");
     return 0;
 }

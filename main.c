@@ -4,19 +4,23 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "cli.h"
 #include "console.h"
-#include "dataoperator.h"
 #include "common.h"
-
+#include "dataoperator.h"
+#include "dataprinter.h"
 
 int main() {
-    ssms_setConsole();
-    ssms_cleanConsole();
+    ssms_console_init();
+    ssms_console_clean();
     printf("开始!\n");
 
     if (ssms_initDatabase() != 0 || ssms_initTable() != 0 || ssms_initStmt() != 0) {
         return 1;
     }
+    ssms_cli_main_loop();
+    return 0;
+
     SSMS_STUDENT_PTR student = ssms_newStudent();
     student->name = "小张";
     student->sex = MALE;
@@ -84,12 +88,12 @@ int main() {
     ssms_freeStudentPtr(student);
     ssms_printStudentsFromDb();
     SSMS_STUDENT_PTR_VEC students = ssms_getAllStudents();
-    ssms_printStudentPtrVec(students);
+    ssms_dataprinter_printStudentPtrVec(students);
     ssms_freeStudentPtrVec(&students);
     ssms_deleteStudent("小张");
     ssms_printStudentsFromDb();
-    student = ssms_getStudent("小明");
-    ssms_printStudent(student);
+    student = ssms_getStudentByName("小明");
+    ssms_dataprinter_printStudent(student);
 
     SSMS_SCORE_PTR score = ssms_newScore();
     score->student_id = student->id;
@@ -97,13 +101,13 @@ int main() {
     score->year = 2017;
     ssms_insertScore(score);
     SSMS_SCORE_PTR_VEC scores = ssms_getAllScoresOrderByScore();
-    ssms_printScorePtrVec(scores);
+    ssms_dataprinter_printScorePtrVec(scores);
 
     printf("平均成绩： %lf\n", ssms_getScoreAvg());
     printf("及格率： %lf%%\n",ssms_getScorePassPercent()*1e2);
     ssms_freeScorePtrVec(&scores);
 
-    int *subsection = ssms_mallocIntArray(13);
+    int *subsection = ssms_common_newIntArray(13);
     ssms_getScorePassSubsection(subsection);
     ssms_printScorePassSubsection(subsection);
     free(subsection);
