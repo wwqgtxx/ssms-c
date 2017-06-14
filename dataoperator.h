@@ -45,6 +45,7 @@ int ssms_freeStudentPtrVec(SSMS_STUDENT_PTR_VEC *students);
 int ssms_insertStudent(SSMS_STUDENT *student);
 int ssms_deleteStudentByName(char *name);
 int ssms_deleteStudentById(sqlite_int64 id);
+int ssms_deleteStudent(SSMS_STUDENT_PTR student);
 SSMS_STUDENT_PTR ssms_getStudentFromPreparedStmt(sqlite3_stmt *stmt);
 SSMS_STUDENT_PTR ssms_getStudentByName(char *name);
 int ssms_checkStudentByName(char *name);

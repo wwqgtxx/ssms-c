@@ -22,7 +22,7 @@ int ssms_console_setNormalColor() {
                                    FOREGROUND_INTENSITY);
 }
 
-int ssms_sonsole_setDifferentColor() {
+int ssms_console_setDifferentColor() {
     return SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
                                    BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | FOREGROUND_BLUE |
                                    FOREGROUND_INTENSITY);

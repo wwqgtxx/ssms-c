@@ -22,7 +22,7 @@ int ssms_cli_main_menu(int select_id) {
             printf(" 功能选择：\n");
             printf("     ");
             if (select_id == 1) {
-                ssms_sonsole_setDifferentColor();
+                ssms_console_setDifferentColor();
             }
             printf("1.学生基本信息录入");
             if (select_id == 1) {
@@ -31,7 +31,7 @@ int ssms_cli_main_menu(int select_id) {
             printf("\n");
             printf("     ");
             if (select_id == 2) {
-                ssms_sonsole_setDifferentColor();
+                ssms_console_setDifferentColor();
             }
             printf("2.学生基本信息删除");
             if (select_id == 2) {
@@ -40,7 +40,7 @@ int ssms_cli_main_menu(int select_id) {
             printf("\n");
             printf("     ");
             if (select_id == 3) {
-                ssms_sonsole_setDifferentColor();
+                ssms_console_setDifferentColor();
             }
             printf("3.学生基本信息修改");
             if (select_id == 3) {
@@ -49,7 +49,7 @@ int ssms_cli_main_menu(int select_id) {
             printf("\n");
             printf("     ");
             if (select_id == 4) {
-                ssms_sonsole_setDifferentColor();
+                ssms_console_setDifferentColor();
             }
             printf("4.学生基本信息查看");
             if (select_id == 4) {
@@ -58,7 +58,7 @@ int ssms_cli_main_menu(int select_id) {
             printf("\n");
             printf("     ");
             if (select_id == 5) {
-                ssms_sonsole_setDifferentColor();
+                ssms_console_setDifferentColor();
             }
             printf("5.学生成绩录入");
             if (select_id == 5) {
@@ -67,7 +67,7 @@ int ssms_cli_main_menu(int select_id) {
             printf("\n");
             printf("     ");
             if (select_id == 6) {
-                ssms_sonsole_setDifferentColor();
+                ssms_console_setDifferentColor();
             }
             printf("6.学生成绩删除");
             if (select_id == 6) {
@@ -76,7 +76,7 @@ int ssms_cli_main_menu(int select_id) {
             printf("\n");
             printf("     ");
             if (select_id == 7) {
-                ssms_sonsole_setDifferentColor();
+                ssms_console_setDifferentColor();
             }
             printf("7.学生成绩修改");
             if (select_id == 7) {
@@ -85,7 +85,7 @@ int ssms_cli_main_menu(int select_id) {
             printf("\n");
             printf("     ");
             if (select_id == 8) {
-                ssms_sonsole_setDifferentColor();
+                ssms_console_setDifferentColor();
             }
             printf("8.学生成绩查看");
             if (select_id == 8) {
@@ -94,7 +94,7 @@ int ssms_cli_main_menu(int select_id) {
             printf("\n");
             printf("     ");
             if (select_id == 9) {
-                ssms_sonsole_setDifferentColor();
+                ssms_console_setDifferentColor();
             }
             printf("9.查看学生成绩统计信息");
             if (select_id == 9) {
@@ -103,7 +103,7 @@ int ssms_cli_main_menu(int select_id) {
             printf("\n");
             printf("     ");
             if (select_id == 10) {
-                ssms_sonsole_setDifferentColor();
+                ssms_console_setDifferentColor();
             }
             printf("10.查看学生成绩排名");
             if (select_id == 10) {
@@ -112,7 +112,7 @@ int ssms_cli_main_menu(int select_id) {
             printf("\n");
             printf("     ");
             if (select_id == 11) {
-                ssms_sonsole_setDifferentColor();
+                ssms_console_setDifferentColor();
             }
             printf("11.生成补考名单");
             if (select_id == 11) {
@@ -121,7 +121,7 @@ int ssms_cli_main_menu(int select_id) {
             printf("\n");
             printf("     ");
             if (select_id == 12) {
-                ssms_sonsole_setDifferentColor();
+                ssms_console_setDifferentColor();
             }
             printf("12.查看成绩分布图");
             if (select_id == 12) {
@@ -225,7 +225,7 @@ int ssms_cli_addNewStudent() {
     ssms_freeStudentPtr(student);
 
     printf("        ");
-    ssms_sonsole_setDifferentColor();
+    ssms_console_setDifferentColor();
     printf("按任意键返回主菜单");
     ssms_console_setNormalColor();
     printf("\n");
@@ -234,10 +234,49 @@ int ssms_cli_addNewStudent() {
     return 0;
 }
 
+int callback1(SSMS_STUDENT_PTR student){
+    system("pause");
+    return 0;
+}
+
+int ssms_cli_deleteStudent(){
+    SSMS_STUDENT_PTR_VEC students = ssms_getAllStudents();
+    ssms_dataprinter_printStudentPtrVecWithSelectCallback(students,callback1);
+    ssms_freeStudentPtrVec(&students);
+    return 0;
+}
+
+int ssms_cli_alertStudent(){
+    SSMS_STUDENT_PTR_VEC students = ssms_getAllStudents();
+    ssms_dataprinter_printStudentPtrVecWithSelectCallback(students,callback1);
+    ssms_freeStudentPtrVec(&students);
+    return 0;
+}
+
 int ssms_cli_showStudentInfo() {
     SSMS_STUDENT_PTR_VEC students = ssms_getAllStudents();
     ssms_dataprinter_printStudentPtrVec(students);
     ssms_freeStudentPtrVec(&students);
+    return 0;
+}
+
+int callback2(SSMS_SCORE_PTR score){
+    system("pause");
+    return 0;
+}
+
+
+int ssms_cli_deleteScore(){
+    SSMS_SCORE_PTR_VEC scores = ssms_getAllScores();
+    ssms_dataprinter_printScorePtrVecWithSelectCallback(scores,callback2);
+    ssms_freeScorePtrVec(&scores);
+    return 0;
+}
+
+int ssms_cli_alertScore(){
+    SSMS_SCORE_PTR_VEC scores = ssms_getAllScores();
+    ssms_dataprinter_printScorePtrVecWithSelectCallback(scores,callback2);
+    ssms_freeScorePtrVec(&scores);
     return 0;
 }
 
@@ -262,7 +301,7 @@ int ssms_cli_showGradeStat() {
     ssms_datapainter_printScorePassSubsection(subsection);
     free(subsection);
     printf("                               ");
-    ssms_sonsole_setDifferentColor();
+    ssms_console_setDifferentColor();
     printf("按任意键返回主菜单");
     ssms_console_setNormalColor();
     printf("\n");
@@ -285,8 +324,20 @@ int ssms_cli_main_loop() {
             case 1:
                 ssms_cli_addNewStudent();
                 break;
+            case 2:
+                ssms_cli_deleteStudent();
+                break;
+            case 3:
+                ssms_cli_alertStudent();
+                break;
             case 4:
                 ssms_cli_showStudentInfo();
+                break;
+            case 6:
+                ssms_cli_deleteScore();
+                break;
+            case 7:
+                ssms_cli_alertScore();
                 break;
             case 8:
                 ssms_cli_showGradeInfo();

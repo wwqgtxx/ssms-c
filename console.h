@@ -8,7 +8,7 @@
 int ssms_console_init();
 int ssms_console_clean();
 int ssms_console_setNormalColor();
-int ssms_sonsole_setDifferentColor();
+int ssms_console_setDifferentColor();
 
 
 #endif //SSMS_CONSOLE_H

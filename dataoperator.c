@@ -282,6 +282,10 @@ int ssms_deleteStudentById(sqlite_int64 id) {
     return 0;
 }
 
+int ssms_deleteStudent(SSMS_STUDENT_PTR student) {
+    return ssms_deleteStudentById(student->id);
+}
+
 int ssms_deleteStudents() {
     ret = sqlite3_exec(db, sql_delete_all_student_data, NULL, NULL, &errmsg);
     printf("Delete records: %s\n", ret == SQLITE_OK ? "OK" : "FAIL");
