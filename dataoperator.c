@@ -37,7 +37,7 @@ const char *sql_select_score_data = "SELECT A.ID,A.STUDENT_ID,A.SCORE,A.YEAR,B.N
 const char *sql_update_score_data = "UPDATE SCORE SET SCORE=?,YEAR=? WHERE ID=?";
 const char *sql_delete_score_data = "DELETE FROM SCORE WHERE ID=?";
 const char *sql_select_all_score_data = "SELECT A.ID,A.STUDENT_ID,A.SCORE,A.YEAR,B.NAME FROM SCORE AS A,STUDENT AS B WHERE B.ID=A.STUDENT_ID";
-const char *sql_select_all_score_data_order_by_score = "SELECT A.ID,A.STUDENT_ID,A.SCORE,A.YEAR,B.NAME FROM SCORE AS A,STUDENT AS B WHERE B.ID=A.STUDENT_ID ORDER BY A.SCORE";
+const char *sql_select_all_score_data_order_by_score = "SELECT A.ID,A.STUDENT_ID,A.SCORE,A.YEAR,B.NAME FROM SCORE AS A,STUDENT AS B WHERE B.ID=A.STUDENT_ID ORDER BY A.SCORE DESC";
 const char *sql_delete_all_score_data = "DELETE FROM SCORE";
 const char *sql_select_score_avg_data = "SELECT AVG(SCORE) FROM SCORE";
 const char *sql_select_score_pass_data = "SELECT SUM(CASE WHEN SCORE>=60 THEN 1.0 ELSE 0.0 END)/COUNT(*) FROM SCORE";
