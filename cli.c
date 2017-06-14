@@ -215,6 +215,7 @@ int ssms_cli_addNewStudent() {
     printf("是否确定保存？ 0:确定 1:放弃并返回主菜单\n");
     scanf("%d", &tmp_int);
     if (tmp_int) {
+        ssms_freeStudentPtr(student);
         return 0;
     }
 
@@ -393,7 +394,6 @@ int ssms_cli_alertStudent_callback(SSMS_STUDENT_PTR student) {
         default:
             goto p0;
     }
-    p3:
     return 0;
 }
 
@@ -411,22 +411,168 @@ int ssms_cli_showStudentInfo() {
     return 0;
 }
 
-int callback2(SSMS_SCORE_PTR score) {
-    system("pause");
+int ssms_cli_addNewScore_callback(SSMS_STUDENT_PTR student){
+    int tmp_int;
+    ssms_console_clean();
+    printf("您选择的学生是:\n");
+    ssms_dataprinter_printStudent(student);
+    printf("是否要登记该学生的成绩？ 0:继续输入 1:放弃并返回主菜单\n");
+    scanf("%d", &tmp_int);
+    if (tmp_int) {
+        return 1;
+    }
+    SSMS_SCORE_PTR score = ssms_newScore();
+    score->id = 0;
+    score->student_id = student->id;
+    score->student_name = student->name;
+    score->need_free = 0;
+    printf("请输入成绩：\n");
+    scanf("%lf",&score->score);
+    printf("请输入学年：\n");
+    scanf("%d",&score->year);
+
+    printf("您录入的信息为：\n");
+    ssms_dataprinter_printScore(score);
+    printf("是否确定保存？ 0:确定 1:放弃并返回主菜单\n");
+    scanf("%d", &tmp_int);
+    if (tmp_int) {
+        ssms_freeScorePtr(score);
+        return 0;
+    }
+
+    if (ssms_insertScore(score) != 1) {
+        printf("信息录入成功！\n");
+        printf("您录入的成绩ID为：%lld", score->id);
+    }
+    ssms_freeScorePtr(score);
+
+
+    printf("        ");
+    ssms_console_setDifferentColor();
+    printf("按任意键返回主菜单");
+    ssms_console_setNormalColor();
+    printf("\n");
+    getch();
+
+    return 1;
+}
+
+int ssms_cli_addNewScore() {
+    int tmp_int;
+    printf("      ----------------------------------------------------------------------\n");
+    printf("     |                          |学生成绩管理系统|                          |\n");
+    printf("     |                           ----------------                           |\n");
+    printf("     |                                                                      |\n");
+    printf("     |                           学生成绩信息录入                           |\n");
+    printf("      ----------------------------------------------------------------------\n");
+    printf("按任意键进入学生选择菜单，ESC键退出编辑");
+    tmp_int = getch();
+    if (tmp_int == 0x1b){//esc
+        return 0;
+    }
+    SSMS_STUDENT_PTR_VEC students = ssms_getAllStudents();
+    ssms_dataprinter_printStudentPtrVecWithSelectCallback(students,ssms_cli_addNewScore_callback);
+    ssms_freeStudentPtrVec(&students);
     return 0;
 }
 
+int ssms_cli_deleteScore_callback(SSMS_SCORE_PTR score) {
+    int tmp_int;
+    ssms_console_clean();
+    printf("您选择的记录是:\n");
+    ssms_dataprinter_printScore(score);
+    printf("是否确定删除该记录（***此操作不可逆***）？ 0:确定 1:放弃并返回\n");
+    scanf("%d", &tmp_int);
+    if (tmp_int) {
+        return 1;
+    }
+    if (ssms_deleteScore(score) == 0) {
+        return 1;
+    }
+
+    return 1;
+}
 
 int ssms_cli_deleteScore() {
     SSMS_SCORE_PTR_VEC scores = ssms_getAllScores();
-    ssms_dataprinter_printScorePtrVecWithSelectCallback(scores, callback2);
+    ssms_dataprinter_printScorePtrVecWithSelectCallback(scores, ssms_cli_deleteScore_callback);
     ssms_freeScorePtrVec(&scores);
     return 0;
 }
 
+int ssms_cli_alertScore_callback(SSMS_SCORE_PTR score) {
+    SSMS_SCORE_PTR tmp_score = ssms_newScore();
+    int select, tmp_int;
+    p1:
+    tmp_score->id = score->id;
+    tmp_score->student_id = score->student_id;
+    tmp_score->score = score->score;
+    tmp_score->year = score->year;
+    tmp_score->student_name = score->student_name;
+    tmp_score->need_free = score->need_free;
+    ssms_console_clean();
+    printf("您选择的记录是:\n");
+    ssms_dataprinter_printScore(score);
+    printf("请输入您要修改的具体属性\n");
+    printf("1:分数\n");
+    printf("2:学年\n");
+    printf("0:放弃修改\n");
+    p0:
+    scanf("%d", &select);
+    switch (select) {
+        case 0:
+            return 1;
+        case 1:
+            printf("请输入成绩：\n");
+            scanf("%lf",&tmp_score->score);
+            printf("您录入的信息为：\n");
+            ssms_dataprinter_printScore(tmp_score);
+            printf("是否确定保存？ 0:确定 1:放弃并返回\n");
+            scanf("%d", &tmp_int);
+            if (tmp_int) {
+                ssms_freeScorePtr(tmp_score);
+                return 1;
+            }
+            if (ssms_updateScore(tmp_score) != 1) {
+                printf("信息录入成功！\n");
+                score->score = tmp_score->score;
+            }
+            printf("是否确定修改其他项？ 0:确定 1:返回\n");
+            scanf("%d", &tmp_int);
+            if (tmp_int) {
+                break;
+            }
+            goto p1;
+        case 2:
+            printf("请输入学年：\n");
+            scanf("%d",&tmp_score->year);
+            printf("您录入的信息为：\n");
+            ssms_dataprinter_printScore(tmp_score);
+            printf("是否确定保存？ 0:确定 1:放弃并返回\n");
+            scanf("%d", &tmp_int);
+            if (tmp_int) {
+                ssms_freeScorePtr(tmp_score);
+                return 1;
+            }
+            if (ssms_updateScore(tmp_score) != 1) {
+                printf("信息录入成功！\n");
+                score->year = tmp_score->year;
+            }
+            printf("是否确定修改其他项？ 0:确定 1:返回\n");
+            scanf("%d", &tmp_int);
+            if (tmp_int) {
+                break;
+            }
+            goto p1;
+        default:
+            goto p0;
+    }
+    return 1;
+}
+
 int ssms_cli_alertScore() {
     SSMS_SCORE_PTR_VEC scores = ssms_getAllScores();
-    ssms_dataprinter_printScorePtrVecWithSelectCallback(scores, callback2);
+    ssms_dataprinter_printScorePtrVecWithSelectCallback(scores, ssms_cli_alertScore_callback);
     ssms_freeScorePtrVec(&scores);
     return 0;
 }
@@ -504,6 +650,9 @@ int ssms_cli_main_loop() {
                 break;
             case 4:
                 ssms_cli_showStudentInfo();
+                break;
+            case 5:
+                ssms_cli_addNewScore();
                 break;
             case 6:
                 ssms_cli_deleteScore();

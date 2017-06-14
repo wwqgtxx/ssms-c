@@ -431,7 +431,7 @@ int ssms_updateScore(SSMS_SCORE_PTR score) {
     return 0;
 }
 
-int ssms_deleteScore(sqlite_int64 id) {
+int ssms_deleteScoreById(sqlite_int64 id) {
     sqlite3_reset(delete_score_data_stmt);
 
     sqlite3_bind_int64(delete_score_data_stmt, 1, id);
@@ -444,6 +444,11 @@ int ssms_deleteScore(sqlite_int64 id) {
     printf("Deleted records num: %i\n", sqlite3_changes(db));
     return 0;
 }
+
+int ssms_deleteScore(SSMS_SCORE_PTR score) {
+    return ssms_deleteScoreById(score->student_id);
+}
+
 
 int ssms_deleteScores() {
     ret = sqlite3_exec(db, sql_delete_all_score_data, NULL, NULL, &errmsg);
