@@ -100,7 +100,7 @@ int ssms_dataprinter_printStudentPtrVecWithSelectCallback(SSMS_STUDENT_PTR_VEC s
                                 break;
                             case 0x0d://enter:
                                 if (callback) {
-                                    callback(student);
+                                    if(callback(students.data[select_id])){ return 0;}
                                     goto p1;
                                 }
                                 break;
@@ -207,7 +207,7 @@ int ssms_dataprinter_printScorePtrVecWithSelectCallback(SSMS_SCORE_PTR_VEC score
                                 break;
                             case 0x0d://enter:
                                 if (callback) {
-                                    callback(score);
+                                    if(callback(scores.data[select_id])){ return 0;}
                                     goto p1;
                                 }
                                 break;
@@ -305,7 +305,7 @@ int ssms_dataprinter_printScoreNotPassNamesWithSelectCallback(SSMS_NAMES_VEC nam
                                 break;
                             case 0x0d://enter:
                                 if (callback) {
-                                    callback(name);
+                                    if(callback(names.data[select_id])){ return 0;}
                                     goto p1;
                                 }
                                 break;

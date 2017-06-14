@@ -195,8 +195,8 @@ int ssms_cli_addNewStudent() {
         printf("警告：姓名不可重复，请使用别的姓名重新输入！\n");
         printf("------------------------------------------\n");
         printf("是否要重新输入？ 0:重新输入 1:放弃并返回主菜单\n");
-        scanf("%d",&tmp_int);
-        if (tmp_int){
+        scanf("%d", &tmp_int);
+        if (tmp_int) {
             return 0;
         }
         ssms_console_clean();
@@ -213,14 +213,14 @@ int ssms_cli_addNewStudent() {
     printf("您录入的信息为：\n");
     ssms_dataprinter_printStudent(student);
     printf("是否确定保存？ 0:确定 1:放弃并返回主菜单\n");
-    scanf("%d",&tmp_int);
-    if (tmp_int){
+    scanf("%d", &tmp_int);
+    if (tmp_int) {
         return 0;
     }
 
     if (ssms_insertStudent(student) != 1) {
         printf("信息录入成功！\n");
-        printf("您录入的学生ID为：%lld",student->id);
+        printf("您录入的学生ID为：%lld", student->id);
     }
     ssms_freeStudentPtr(student);
 
@@ -234,21 +234,172 @@ int ssms_cli_addNewStudent() {
     return 0;
 }
 
-int callback1(SSMS_STUDENT_PTR student){
-    system("pause");
+int ssms_cli_deleteStudent_callback(SSMS_STUDENT_PTR student) {
+    int tmp_int;
+    ssms_console_clean();
+    printf("您选择的记录是:\n");
+    ssms_dataprinter_printStudent(student);
+    printf("是否确定删除该记录（***此操作不可逆***）？ 0:确定 1:放弃并返回\n");
+    scanf("%d", &tmp_int);
+    if (tmp_int) {
+        return 0;
+    }
+    if (ssms_deleteStudent(student) == 0) {
+        return 1;
+    }
+
     return 0;
 }
 
-int ssms_cli_deleteStudent(){
+int ssms_cli_deleteStudent() {
     SSMS_STUDENT_PTR_VEC students = ssms_getAllStudents();
-    ssms_dataprinter_printStudentPtrVecWithSelectCallback(students,callback1);
+    ssms_dataprinter_printStudentPtrVecWithSelectCallback(students, ssms_cli_deleteStudent_callback);
     ssms_freeStudentPtrVec(&students);
     return 0;
 }
 
-int ssms_cli_alertStudent(){
+int ssms_cli_alertStudent_callback(SSMS_STUDENT_PTR student) {
+    SSMS_STUDENT_PTR tmp_student = ssms_newStudent();
+    int select, tmp_int;
+    p1:
+    tmp_student->id = student->id;
+    tmp_student->name = student->name;
+    tmp_student->sex = student->sex;
+    tmp_student->age = student->age;
+    tmp_student->major = student->major;
+    tmp_student->need_free = 0;
+    ssms_console_clean();
+    printf("您选择的记录是:\n");
+    ssms_dataprinter_printStudent(student);
+    printf("请输入您要修改的具体属性\n");
+    printf("1:姓名\n");
+    printf("2:性别\n");
+    printf("3:年龄\n");
+    printf("4:专业\n");
+    printf("0:放弃修改\n");
+    p0:
+    scanf("%d", &select);
+    switch (select) {
+        case 0:
+            return 0;
+        case 1:
+            tmp_student->name = ssms_common_newstr(50);
+        input_name:
+            printf("请输入姓名：\n");
+            fflush(stdin);
+            gets(tmp_student->name);
+            if (ssms_checkStudentByName(tmp_student->name)) {
+                printf("------------------------------------------\n");
+                printf("警告：姓名不可重复，请使用别的姓名重新输入！\n");
+                printf("------------------------------------------\n");
+                printf("是否要重新输入？ 0:重新输入 1:放弃修改\n");
+                scanf("%d", &tmp_int);
+                if (tmp_int) {
+                    free(tmp_student->name);
+                    ssms_freeStudentPtr(tmp_student);
+                    return 0;
+                }
+                goto input_name;
+            }
+            printf("您录入的信息为：\n");
+            ssms_dataprinter_printStudent(tmp_student);
+            printf("是否确定保存？ 0:确定 1:放弃并返回\n");
+            scanf("%d", &tmp_int);
+            if (tmp_int) {
+                free(tmp_student->name);
+                ssms_freeStudentPtr(tmp_student);
+                return 0;
+            }
+            if (ssms_updateStudent(tmp_student) != 1) {
+                printf("信息录入成功！\n");
+                free(student->name);
+                student->name = tmp_student->name;
+            }
+            printf("是否确定修改其他项？ 0:确定 1:返回\n");
+            scanf("%d", &tmp_int);
+            if (tmp_int) {
+                break;
+            }
+            goto p1;
+        case 2:
+            printf("请输入性别： 0：男 1：女\n");
+            scanf("%d", &tmp_int);
+            tmp_student->sex = tmp_int ? FEMALE : MALE;
+            printf("您录入的信息为：\n");
+            ssms_dataprinter_printStudent(tmp_student);
+            printf("是否确定保存？ 0:确定 1:放弃并返回\n");
+            scanf("%d", &tmp_int);
+            if (tmp_int) {
+                ssms_freeStudentPtr(tmp_student);
+                return 0;
+            }
+            if (ssms_updateStudent(tmp_student) != 1) {
+                printf("信息录入成功！\n");
+                student->sex = tmp_student->sex;
+            }
+            printf("是否确定修改其他项？ 0:确定 1:返回\n");
+            scanf("%d", &tmp_int);
+            if (tmp_int) {
+                break;
+            }
+            goto p1;
+        case 3:
+            printf("请输入年龄：（整数）\n");
+            scanf("%d", &tmp_student->age);
+            printf("您录入的信息为：\n");
+            ssms_dataprinter_printStudent(tmp_student);
+            printf("是否确定保存？ 0:确定 1:放弃并返回\n");
+            scanf("%d", &tmp_int);
+            if (tmp_int) {
+                ssms_freeStudentPtr(tmp_student);
+                return 0;
+            }
+            if (ssms_updateStudent(tmp_student) != 1) {
+                printf("信息录入成功！\n");
+                student->age = tmp_student->age;
+            }
+            printf("是否确定修改其他项？ 0:确定 1:返回\n");
+            scanf("%d", &tmp_int);
+            if (tmp_int) {
+                break;
+            }
+            goto p1;
+        case 4:
+            tmp_student->major = ssms_common_newstr(50);
+            printf("请输入专业/学院:\n");
+            fflush(stdin);
+            gets(tmp_student->major);
+
+            printf("您录入的信息为：\n");
+            ssms_dataprinter_printStudent(tmp_student);
+            printf("是否确定保存？ 0:确定 1:放弃并返回\n");
+            scanf("%d", &tmp_int);
+            if (tmp_int) {
+                free(tmp_student->major);
+                ssms_freeStudentPtr(tmp_student);
+                return 0;
+            }
+            if (ssms_updateStudent(tmp_student) != 1) {
+                printf("信息录入成功！\n");
+                free(student->major);
+                student->major = tmp_student->major;
+            }
+            printf("是否确定修改其他项？ 0:确定 1:返回\n");
+            scanf("%d", &tmp_int);
+            if (tmp_int) {
+                break;
+            }
+            goto p1;
+        default:
+            goto p0;
+    }
+    p3:
+    return 0;
+}
+
+int ssms_cli_alertStudent() {
     SSMS_STUDENT_PTR_VEC students = ssms_getAllStudents();
-    ssms_dataprinter_printStudentPtrVecWithSelectCallback(students,callback1);
+    ssms_dataprinter_printStudentPtrVecWithSelectCallback(students, ssms_cli_alertStudent_callback);
     ssms_freeStudentPtrVec(&students);
     return 0;
 }
@@ -260,22 +411,22 @@ int ssms_cli_showStudentInfo() {
     return 0;
 }
 
-int callback2(SSMS_SCORE_PTR score){
+int callback2(SSMS_SCORE_PTR score) {
     system("pause");
     return 0;
 }
 
 
-int ssms_cli_deleteScore(){
+int ssms_cli_deleteScore() {
     SSMS_SCORE_PTR_VEC scores = ssms_getAllScores();
-    ssms_dataprinter_printScorePtrVecWithSelectCallback(scores,callback2);
+    ssms_dataprinter_printScorePtrVecWithSelectCallback(scores, callback2);
     ssms_freeScorePtrVec(&scores);
     return 0;
 }
 
-int ssms_cli_alertScore(){
+int ssms_cli_alertScore() {
     SSMS_SCORE_PTR_VEC scores = ssms_getAllScores();
-    ssms_dataprinter_printScorePtrVecWithSelectCallback(scores,callback2);
+    ssms_dataprinter_printScorePtrVecWithSelectCallback(scores, callback2);
     ssms_freeScorePtrVec(&scores);
     return 0;
 }
