@@ -176,21 +176,30 @@ int ssms_cli_main_menu(int select_id) {
 int ssms_cli_addNewStudent() {
     int tmp_int;
     SSMS_STUDENT_PTR student = ssms_newStudent();
+    student->id = 0;
     student->name = ssms_common_newstr(50);
     student->major = ssms_common_newstr(50);
     student->need_free = 1;
+    input_name:
     printf("      ----------------------------------------------------------------------\n");
     printf("     |                          |学生成绩管理系统|                          |\n");
     printf("     |                           ----------------                           |\n");
     printf("     |                                                                      |\n");
     printf("     |                           学生基本信息录入                           |\n");
     printf("      ----------------------------------------------------------------------\n");
-    input_name:
     printf("请输入姓名：\n");
     fflush(stdin);
     gets(student->name);
     if (ssms_checkStudentByName(student->name)) {
+        printf("------------------------------------------\n");
         printf("警告：姓名不可重复，请使用别的姓名重新输入！\n");
+        printf("------------------------------------------\n");
+        printf("是否要重新输入？ 0:重新输入 1:放弃并返回主菜单\n");
+        scanf("%d",&tmp_int);
+        if (tmp_int){
+            return 0;
+        }
+        ssms_console_clean();
         goto input_name;
     }
     printf("请输入性别： 0：男 1：女\n");
@@ -201,16 +210,21 @@ int ssms_cli_addNewStudent() {
     printf("请输入专业/学院:\n");
     fflush(stdin);
     gets(student->major);
+    printf("您录入的信息为：\n");
+    ssms_dataprinter_printStudent(student);
+    printf("是否确定保存？ 0:确定 1:放弃并返回主菜单\n");
+    scanf("%d",&tmp_int);
+    if (tmp_int){
+        return 0;
+    }
 
     if (ssms_insertStudent(student) != 1) {
         printf("信息录入成功！\n");
-        printf("\n");
-        printf("您录入的信息为：\n");
-        ssms_dataprinter_printStudent(student);
+        printf("您录入的学生ID为：%lld",student->id);
     }
     ssms_freeStudentPtr(student);
 
-    printf("                               ");
+    printf("        ");
     ssms_sonsole_setDifferentColor();
     printf("按任意键返回主菜单");
     ssms_console_setNormalColor();

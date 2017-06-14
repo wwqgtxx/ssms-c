@@ -124,10 +124,10 @@ int ssms_initTable() {
 int ssms_initStmt() {
     sqlite3_prepare_v2(db, sql_insert_student_data, -1, &insert_student_data_stmt, 0);
     sqlite3_prepare_v2(db, sql_select_student_data_by_name, -1, &select_student_data_by_name_stmt, 0);
-    sqlite3_prepare_v2(db, sql_select_student_data_by_id, -1, &select_student_data_by_name_stmt, 0);
+    sqlite3_prepare_v2(db, sql_select_student_data_by_id, -1, &select_student_data_by_id_stmt, 0);
     sqlite3_prepare_v2(db, sql_update_student_data, -1, &update_student_data_stmt, 0);
     sqlite3_prepare_v2(db, sql_delete_student_data_by_name, -1, &delete_student_data_by_name_stmt, 0);
-    sqlite3_prepare_v2(db, sql_delete_student_data_by_id, -1, &delete_student_data_by_name_stmt, 0);
+    sqlite3_prepare_v2(db, sql_delete_student_data_by_id, -1, &delete_student_data_by_id_stmt, 0);
     sqlite3_prepare_v2(db, sql_select_all_student_data, -1, &select_all_student_data_stmt, 0);
     sqlite3_prepare_v2(db, sql_insert_score_data, -1, &insert_score_data_stmt, 0);
     sqlite3_prepare_v2(db, sql_select_score_data, -1, &select_score_data_stmt, 0);
@@ -205,6 +205,9 @@ SSMS_STUDENT_PTR ssms_getStudentByName(char *name) {
 }
 
 int ssms_checkStudentByName(char *name) {
+    sqlite3_reset(select_student_data_by_name_stmt);
+    sqlite3_bind_text(select_student_data_by_name_stmt, 1, name, (int) strlen(name), NULL);
+    ret = sqlite3_step(select_student_data_by_name_stmt);
     return ret == SQLITE_ROW;
 }
 
