@@ -10,8 +10,7 @@
 #include "dataoperator.h"
 #include "dataprinter.h"
 
-int ssms_cli_main_menu() {
-    int select_id = 1;
+int ssms_cli_main_menu(int select_id) {
     int need_print = 1;
     ssms_console_clean();
     while (1) {
@@ -206,7 +205,7 @@ int ssms_cli_showGradeStat() {
     printf("按任意键返回主菜单");
     ssms_console_setNormalColor();
     printf("\n");
-    getchar();
+    getch();
     return 0;
 }
 
@@ -219,8 +218,8 @@ int ssms_cli_showScoreRanking() {
 
 
 int ssms_cli_main_loop() {
-    int select_id;
-    while ((select_id = ssms_cli_main_menu()) != 0) {
+    int select_id=1;
+    while ((select_id = ssms_cli_main_menu(select_id)) != 0) {
         switch (select_id) {
             case 4:
                 ssms_cli_showStudentInfo();
