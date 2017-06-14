@@ -173,6 +173,53 @@ int ssms_cli_main_menu(int select_id) {
     return 0;
 }
 
+int ssms_cli_addNewStudent() {
+    int tmp_int;
+    SSMS_STUDENT_PTR student = ssms_newStudent();
+    student->name = ssms_common_newstr(50);
+    student->major = ssms_common_newstr(50);
+    student->need_free = 1;
+    printf("      ----------------------------------------------------------------------\n");
+    printf("     |                          |学生成绩管理系统|                          |\n");
+    printf("     |                           ----------------                           |\n");
+    printf("     |                                                                      |\n");
+    printf("     |                           学生基本信息录入                           |\n");
+    printf("      ----------------------------------------------------------------------\n");
+    input_name:
+    printf("请输入姓名：\n");
+    fflush(stdin);
+    gets(student->name);
+    if (ssms_checkStudentByName(student->name)) {
+        printf("警告：姓名不可重复，请使用别的姓名重新输入！\n");
+        goto input_name;
+    }
+    printf("请输入性别： 0：男 1：女\n");
+    scanf("%d", &tmp_int);
+    student->sex = tmp_int ? FEMALE : MALE;
+    printf("请输入年龄：（整数）\n");
+    scanf("%d", &student->age);
+    printf("请输入专业/学院:\n");
+    fflush(stdin);
+    gets(student->major);
+
+    if (ssms_insertStudent(student) != 1) {
+        printf("信息录入成功！\n");
+        printf("\n");
+        printf("您录入的信息为：\n");
+        ssms_dataprinter_printStudent(student);
+    }
+    ssms_freeStudentPtr(student);
+
+    printf("                               ");
+    ssms_sonsole_setDifferentColor();
+    printf("按任意键返回主菜单");
+    ssms_console_setNormalColor();
+    printf("\n");
+    getch();
+
+    return 0;
+}
+
 int ssms_cli_showStudentInfo() {
     SSMS_STUDENT_PTR_VEC students = ssms_getAllStudents();
     ssms_dataprinter_printStudentPtrVec(students);
@@ -198,7 +245,7 @@ int ssms_cli_showGradeStat() {
     printf("及格率： %lf%%\n", ssms_getScorePassPercent() * 1e2);
     int *subsection = ssms_common_newIntArray(13);
     ssms_getScorePassSubsection(subsection);
-    ssms_printScorePassSubsection(subsection);
+    ssms_datapainter_printScorePassSubsection(subsection);
     free(subsection);
     printf("                               ");
     ssms_sonsole_setDifferentColor();
@@ -218,9 +265,12 @@ int ssms_cli_showScoreRanking() {
 
 
 int ssms_cli_main_loop() {
-    int select_id=1;
+    int select_id = 1;
     while ((select_id = ssms_cli_main_menu(select_id)) != 0) {
         switch (select_id) {
+            case 1:
+                ssms_cli_addNewStudent();
+                break;
             case 4:
                 ssms_cli_showStudentInfo();
                 break;

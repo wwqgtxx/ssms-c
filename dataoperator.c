@@ -21,7 +21,8 @@ const char *sql_insert_student_data = "INSERT INTO STUDENT(NAME,SEX,AGE,MAJOR) V
 const char *sql_select_student_data_by_name = "SELECT ID,NAME,SEX,AGE,MAJOR FROM STUDENT WHERE NAME=?";
 const char *sql_select_student_data_by_id = "SELECT ID,NAME,SEX,AGE,MAJOR FROM STUDENT WHERE ID=?";
 const char *sql_update_student_data = "UPDATE STUDENT SET NAME=?,SEX=?,AGE=?,MAJOR=? WHERE ID=?";
-const char *sql_delete_student_data = "DELETE FROM STUDENT WHERE NAME=?";
+const char *sql_delete_student_data_by_name = "DELETE FROM STUDENT WHERE NAME=?";
+const char *sql_delete_student_data_by_id = "DELETE FROM STUDENT WHERE ID=?";
 const char *sql_select_all_student_data = "SELECT ID,NAME,SEX,AGE,MAJOR FROM STUDENT";
 const char *sql_delete_all_student_data = "DELETE FROM STUDENT";
 
@@ -59,7 +60,8 @@ sqlite3_stmt *insert_student_data_stmt;
 sqlite3_stmt *select_student_data_by_name_stmt;
 sqlite3_stmt *select_student_data_by_id_stmt;
 sqlite3_stmt *update_student_data_stmt;
-sqlite3_stmt *delete_student_data_stmt;
+sqlite3_stmt *delete_student_data_by_name_stmt;
+sqlite3_stmt *delete_student_data_by_id_stmt;
 sqlite3_stmt *select_all_student_data_stmt;
 
 sqlite3_stmt *insert_score_data_stmt;
@@ -88,7 +90,8 @@ int ssms_closeDatabase() {
     sqlite3_finalize(select_student_data_by_name_stmt);
     sqlite3_finalize(select_student_data_by_id_stmt);
     sqlite3_finalize(update_student_data_stmt);
-    sqlite3_finalize(delete_student_data_stmt);
+    sqlite3_finalize(delete_student_data_by_name_stmt);
+    sqlite3_finalize(delete_student_data_by_id_stmt);
     sqlite3_finalize(select_all_student_data_stmt);
     sqlite3_finalize(insert_score_data_stmt);
     sqlite3_finalize(select_score_data_stmt);
@@ -123,7 +126,8 @@ int ssms_initStmt() {
     sqlite3_prepare_v2(db, sql_select_student_data_by_name, -1, &select_student_data_by_name_stmt, 0);
     sqlite3_prepare_v2(db, sql_select_student_data_by_id, -1, &select_student_data_by_name_stmt, 0);
     sqlite3_prepare_v2(db, sql_update_student_data, -1, &update_student_data_stmt, 0);
-    sqlite3_prepare_v2(db, sql_delete_student_data, -1, &delete_student_data_stmt, 0);
+    sqlite3_prepare_v2(db, sql_delete_student_data_by_name, -1, &delete_student_data_by_name_stmt, 0);
+    sqlite3_prepare_v2(db, sql_delete_student_data_by_id, -1, &delete_student_data_by_name_stmt, 0);
     sqlite3_prepare_v2(db, sql_select_all_student_data, -1, &select_all_student_data_stmt, 0);
     sqlite3_prepare_v2(db, sql_insert_score_data, -1, &insert_score_data_stmt, 0);
     sqlite3_prepare_v2(db, sql_select_score_data, -1, &select_score_data_stmt, 0);
@@ -200,6 +204,10 @@ SSMS_STUDENT_PTR ssms_getStudentByName(char *name) {
     return ssms_getStudentFromPreparedStmt(select_student_data_by_name_stmt);
 }
 
+int ssms_checkStudentByName(char *name) {
+    return ret == SQLITE_ROW;
+}
+
 SSMS_STUDENT_PTR ssms_getStudentById(sqlite_int64 id) {
     sqlite3_reset(select_student_data_by_id_stmt);
     sqlite3_bind_int64(select_student_data_by_id_stmt, 1, id);
@@ -243,12 +251,26 @@ int ssms_updateStudent(SSMS_STUDENT_PTR student) {
     return 0;
 }
 
-int ssms_deleteStudent(char *name) {
-    sqlite3_reset(delete_student_data_stmt);
+int ssms_deleteStudentByName(char *name) {
+    sqlite3_reset(delete_student_data_by_name_stmt);
 
-    sqlite3_bind_text(delete_student_data_stmt, 1, name, (int) strlen(name), NULL);
+    sqlite3_bind_text(delete_student_data_by_name_stmt, 1, name, (int) strlen(name), NULL);
 
-    ret = sqlite3_step(delete_student_data_stmt);
+    ret = sqlite3_step(delete_student_data_by_name_stmt);
+    if (ret != SQLITE_DONE) {
+        fprintf(stderr, "Delete failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
+        return 1;
+    }
+    printf("Deleted records num: %i\n", sqlite3_changes(db));
+    return 0;
+}
+
+int ssms_deleteStudentById(sqlite_int64 id) {
+    sqlite3_reset(delete_student_data_by_id_stmt);
+
+    sqlite3_bind_int64(delete_student_data_by_id_stmt, 1, id);
+
+    ret = sqlite3_step(delete_student_data_by_id_stmt);
     if (ret != SQLITE_DONE) {
         fprintf(stderr, "Delete failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
         return 1;
@@ -483,33 +505,5 @@ int ssms_getScorePassSubsection(int *subsection) {
     }
     sqlite3_free_table(db_result);
     sqlite3_free(errmsg);
-    return 0;
-}
-
-int ssms_printScorePassSubsection(int *subsection) {
-    int i = 1;
-    printf("登记考生人数： %d\n", subsection[0]);
-    printf(" -----------------------------------------------------------------------------------\n");
-    printf("考生成绩分布表：\n");
-    printf("             -----------------------------------------------------\n");
-    printf("            |%-8s|%-8s|%-8s|%-8s|%-8s|%-8s|\n", "0分", "1-9分", "10-19分", "20-29分", "30-39分", "40-49分");
-    printf("             -----------------------------------------------------\n");
-    printf("            ");
-    for (; i < 7; i++) {
-        printf("|%-8d", subsection[i]);
-    }
-    printf("|\n");
-    printf("             -----------------------------------------------------\n");
-    printf("\n");
-    printf("             -----------------------------------------------------\n");
-    printf("            |%-8s|%-8s|%-8s|%-8s|%-8s|%-8s|\n", "50-59分", "60-69分", "71-79分", "80-89分", "90-99分", "100分");
-    printf("             -----------------------------------------------------\n");
-    printf("            ");
-    for (; i < 13; i++) {
-        printf("|%-8d", subsection[i]);
-    }
-    printf("|\n");
-    printf("             -----------------------------------------------------\n");
-    printf(" -----------------------------------------------------------------------------------\n");
     return 0;
 }

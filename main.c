@@ -90,7 +90,7 @@ int main() {
     SSMS_STUDENT_PTR_VEC students = ssms_getAllStudents();
     ssms_dataprinter_printStudentPtrVec(students);
     ssms_freeStudentPtrVec(&students);
-    ssms_deleteStudent("小张");
+    ssms_deleteStudentByName("小张");
     ssms_printStudentsFromDb();
     student = ssms_getStudentByName("小明");
     ssms_dataprinter_printStudent(student);
@@ -109,7 +109,7 @@ int main() {
 
     int *subsection = ssms_common_newIntArray(13);
     ssms_getScorePassSubsection(subsection);
-    ssms_printScorePassSubsection(subsection);
+    ssms_datapainter_printScorePassSubsection(subsection);
     free(subsection);
 
     ssms_freeStudentPtr(student);

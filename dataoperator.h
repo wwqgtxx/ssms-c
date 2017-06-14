@@ -43,9 +43,11 @@ SSMS_STUDENT_PTR ssms_newStudent();
 int ssms_freeStudentPtr(SSMS_STUDENT* student);
 int ssms_freeStudentPtrVec(SSMS_STUDENT_PTR_VEC *students);
 int ssms_insertStudent(SSMS_STUDENT *student);
-int ssms_deleteStudent(char* name);
+int ssms_deleteStudentByName(char *name);
+int ssms_deleteStudentById(sqlite_int64 id);
 SSMS_STUDENT_PTR ssms_getStudentFromPreparedStmt(sqlite3_stmt *stmt);
 SSMS_STUDENT_PTR ssms_getStudentByName(char *name);
+int ssms_checkStudentByName(char *name);
 SSMS_STUDENT_PTR ssms_getStudentById(sqlite_int64 id);
 SSMS_STUDENT_PTR_VEC ssms_getStudentsPrtVecByStmt(sqlite3_stmt* stmt);
 SSMS_STUDENT_PTR_VEC ssms_getAllStudents();
@@ -70,7 +72,6 @@ double ssms_getScoreAvg();
 double ssms_getScorePassPercent();
 
 int ssms_getScorePassSubsection(int *subsection);
-int ssms_printScorePassSubsection(int *subsection);
 
 
 #endif //SSMS_DATAOPERATOR_H
