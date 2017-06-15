@@ -21,11 +21,11 @@ int ssms_dataprinter_printStudent(SSMS_STUDENT_PTR student) {
             sex = "未知";
             break;
     }
-    printf(" -------------------------------------------------------------------------------\n");
-    printf("|%-15s|%-15s|%-15s|%-15s|%-15s|\n", "id", "姓名", "性别", "年龄", "专业/学院");
-    printf(" -------------------------------------------------------------------------------\n");
-    printf("|%-15lld|%-15s|%-15s|%-15d|%-15s|\n", student->id, student->name, sex, student->age, student->major);
-    printf(" -------------------------------------------------------------------------------\n");
+    printf_s(" -------------------------------------------------------------------------------\n");
+    printf_s("|%-15s|%-15s|%-15s|%-15s|%-15s|\n", "id", "姓名", "性别", "年龄", "专业/学院");
+    printf_s(" -------------------------------------------------------------------------------\n");
+    printf_s("|%-15lld|%-15s|%-15s|%-15d|%-15s|\n", student->id, student->name, sex, student->age, student->major);
+    printf_s(" -------------------------------------------------------------------------------\n");
     return 0;
 }
 
@@ -36,9 +36,10 @@ int ssms_dataprinter_printStudentPtrVecWithSelectCallback(SSMS_STUDENT_PTR_VEC s
     int select_id = 0;
     int i;
     char *sex;
-    printf(" -------------------------------------------------------------------------------\n");
-    printf("|%-15s|%-15s|%-15s|%-15s|%-15s|\n", "id", "姓名", "性别", "年龄", "专业/学院");
-    printf(" -------------------------------------------------------------------------------\n");
+    ssms_console_clean();
+    printf_s(" -------------------------------------------------------------------------------\n");
+    printf_s("|%-15s|%-15s|%-15s|%-15s|%-15s|\n", "id", "姓名", "性别", "年龄", "专业/学院");
+    printf_s(" -------------------------------------------------------------------------------\n");
     if (students.length > 0) {
         vec_foreach(&students, student, i) {
                 switch (student->sex) {
@@ -55,23 +56,23 @@ int ssms_dataprinter_printStudentPtrVecWithSelectCallback(SSMS_STUDENT_PTR_VEC s
                 if (i == select_id) {
                     ssms_console_setDifferentColor();
                 }
-                printf("|%-15lld|%-15s|%-15s|%-15d|%-15s|", student->id, student->name, sex, student->age,
+                printf_s("|%-15lld|%-15s|%-15s|%-15d|%-15s|", student->id, student->name, sex, student->age,
                        student->major);
                 if (i == select_id) {
                     ssms_console_setNormalColor();
                 }
-                printf("\n");
+                printf_s("\n");
                 num++;
                 if (num % 19 == 0 || i == students.length - 1) {
-                    printf(" -------------------------------------------------------------------------------\n");
-                    printf("提示：按方向键可上下翻页，按ESC键可退出显示。\n");
+                    printf_s(" -------------------------------------------------------------------------------\n");
+                    printf_s("提示：按方向键可上下翻页，按ESC键可退出显示。\n");
                     if (num < 19) {
-                        for (int tmp = num; tmp < 19; tmp++) printf("\n");
+                        for (int tmp = num; tmp < 19; tmp++) printf_s("\n");
                     }
                     while (1) {
-                        switch (getch()) {
+                        switch (_getch()) {
                             case 0xe0:
-                                switch (getch()) {
+                                switch (_getch()) {
                                     case 72://up
                                         if (select_id > 0) {
                                             select_id--;
@@ -115,22 +116,23 @@ int ssms_dataprinter_printStudentPtrVecWithSelectCallback(SSMS_STUDENT_PTR_VEC s
                     p1:
                     i -= num;
                     num = 0;
-                    printf(" -------------------------------------------------------------------------------\n");
-                    printf("|%-15s|%-15s|%-15s|%-15s|%-15s|\n", "id", "姓名", "性别", "年龄",
+                    ssms_console_clean();
+                    printf_s(" -------------------------------------------------------------------------------\n");
+                    printf_s("|%-15s|%-15s|%-15s|%-15s|%-15s|\n", "id", "姓名", "性别", "年龄",
                            "专业/学院");
-                    printf(" -------------------------------------------------------------------------------\n");
+                    printf_s(" -------------------------------------------------------------------------------\n");
                 }
             }
     } else {
-        printf("                        ");
-        printf("数据库中没有任何数据，请添加数据");
-        for (i = 0; i < 20; i++) printf("\n");
-        printf("                               ");
+        printf_s("                        ");
+        printf_s("数据库中没有任何数据，请添加数据");
+        for (i = 0; i < 20; i++) printf_s("\n");
+        printf_s("                               ");
         ssms_console_setDifferentColor();
-        printf("按任意键返回");
+        printf_s("按任意键返回");
         ssms_console_setNormalColor();
-        printf("\n");
-        getch();
+        printf_s("\n");
+        _getch();
     }
     return 0;
 }
@@ -140,11 +142,11 @@ int ssms_dataprinter_printStudentPtrVec(SSMS_STUDENT_PTR_VEC students) {
 }
 
 int ssms_dataprinter_printScore(SSMS_SCORE_PTR score) {
-    printf(" ---------------------------------------------------------------\n");
-    printf("|%-15s|%-15s|%-15s|%-15s|\n", "id", "学生id", "分数", "学年");
-    printf(" ---------------------------------------------------------------\n");
-    printf("|%-15lld|%-15lld|%-15lf|%-15d|\n", score->id, score->student_id, score->score, score->year);
-    printf(" ---------------------------------------------------------------\n");
+    printf_s(" ---------------------------------------------------------------\n");
+    printf_s("|%-15s|%-15s|%-15s|%-15s|\n", "id", "学生id", "分数", "学年");
+    printf_s(" ---------------------------------------------------------------\n");
+    printf_s("|%-15lld|%-15lld|%-15lf|%-15d|\n", score->id, score->student_id, score->score, score->year);
+    printf_s(" ---------------------------------------------------------------\n");
     return 0;
 }
 
@@ -154,31 +156,32 @@ int ssms_dataprinter_printScorePtrVecWithSelectCallback(SSMS_SCORE_PTR_VEC score
     int num = 0;
     int select_id = 0;
     int i;
-    printf(" ---------------------------------------------------------------\n");
-    printf("|%-15s|%-15s|%-15s|%-15s|\n", "id", "学生名称", "分数", "学年");
-    printf(" ---------------------------------------------------------------\n");
+    ssms_console_clean();
+    printf_s(" ---------------------------------------------------------------\n");
+    printf_s("|%-15s|%-15s|%-15s|%-15s|\n", "id", "学生名称", "分数", "学年");
+    printf_s(" ---------------------------------------------------------------\n");
     if (scores.length > 0) {
         vec_foreach(&scores, score, i) {
 
                 if (i == select_id) {
                     ssms_console_setDifferentColor();
                 }
-                printf("|%-15lld|%-15s|%-15lf|%-15d|", score->id, score->student_name, score->score, score->year);
+                printf_s("|%-15lld|%-15s|%-15lf|%-15d|", score->id, score->student_name, score->score, score->year);
                 if (i == select_id) {
                     ssms_console_setNormalColor();
                 }
-                printf("\n");
+                printf_s("\n");
                 num++;
                 if (num % 19 == 0 || i == scores.length - 1) {
-                    printf(" -------------------------------------------------------------------------------\n");
-                    printf("提示：按方向键可上下翻页，按ESC键可退出显示。\n");
+                    printf_s(" -------------------------------------------------------------------------------\n");
+                    printf_s("提示：按方向键可上下翻页，按ESC键可退出显示。\n");
                     if (num < 19) {
-                        for (int tmp = num; tmp < 19; tmp++) printf("\n");
+                        for (int tmp = num; tmp < 19; tmp++) printf_s("\n");
                     }
                     while (1) {
-                        switch (getch()) {
+                        switch (_getch()) {
                             case 0xe0:
-                                switch (getch()) {
+                                switch (_getch()) {
                                     case 72://up
                                         if (select_id > 0) {
                                             select_id--;
@@ -222,22 +225,23 @@ int ssms_dataprinter_printScorePtrVecWithSelectCallback(SSMS_SCORE_PTR_VEC score
                     p1:
                     i -= num;
                     num = 0;
-                    printf(" ---------------------------------------------------------------\n");
-                    printf("|%-15s|%-15s|%-15s|%-15s|\n", "id", "学生名称", "分数", "学年");
-                    printf(" ---------------------------------------------------------------\n");
+                    ssms_console_clean();
+                    printf_s(" ---------------------------------------------------------------\n");
+                    printf_s("|%-15s|%-15s|%-15s|%-15s|\n", "id", "学生名称", "分数", "学年");
+                    printf_s(" ---------------------------------------------------------------\n");
 
                 }
             }
     } else {
-        printf("                        ");
-        printf("数据库中没有任何数据，请添加数据");
-        for (i = 0; i < 20; i++) printf("\n");
-        printf("                               ");
+        printf_s("                        ");
+        printf_s("数据库中没有任何数据，请添加数据");
+        for (i = 0; i < 20; i++) printf_s("\n");
+        printf_s("                               ");
         ssms_console_setDifferentColor();
-        printf("按任意键返回");
+        printf_s("按任意键返回");
         ssms_console_setNormalColor();
-        printf("\n");
-        getch();
+        printf_s("\n");
+        _getch();
     }
     return 0;
 }
@@ -252,31 +256,32 @@ int ssms_dataprinter_printScoreNotPassNamesWithSelectCallback(SSMS_NAMES_VEC nam
     int num = 0;
     int select_id = 0;
     int i;
-    printf(" ---------------\n");
-    printf("|%-15s|\n", "学生名称");
-    printf(" ---------------\n");
+    ssms_console_clean();
+    printf_s(" ---------------\n");
+    printf_s("|%-15s|\n", "学生名称");
+    printf_s(" ---------------\n");
     if (names.length > 0) {
         vec_foreach(&names, name, i) {
 
                 if (i == select_id) {
                     ssms_console_setDifferentColor();
                 }
-                printf("|%-15s|", name);
+                printf_s("|%-15s|", name);
                 if (i == select_id) {
                     ssms_console_setNormalColor();
                 }
-                printf("\n");
+                printf_s("\n");
                 num++;
                 if (num % 19 == 0 || i == names.length - 1) {
-                    printf(" ---------------\n");
-                    printf("提示：按方向键可上下翻页，按ESC键可退出显示。\n");
+                    printf_s(" ---------------\n");
+                    printf_s("提示：按方向键可上下翻页，按ESC键可退出显示。\n");
                     if (num < 19) {
-                        for (int tmp = num; tmp < 19; tmp++) printf("\n");
+                        for (int tmp = num; tmp < 19; tmp++) printf_s("\n");
                     }
                     while (1) {
-                        switch (getch()) {
+                        switch (_getch()) {
                             case 0xe0:
-                                switch (getch()) {
+                                switch (_getch()) {
                                     case 72://up
                                         if (select_id > 0) {
                                             select_id--;
@@ -320,22 +325,23 @@ int ssms_dataprinter_printScoreNotPassNamesWithSelectCallback(SSMS_NAMES_VEC nam
                     p1:
                     i -= num;
                     num = 0;
-                    printf(" ---------------\n");
-                    printf("|%-15s|\n", "学生名称");
-                    printf(" ---------------\n");
+                    ssms_console_clean();
+                    printf_s(" ---------------\n");
+                    printf_s("|%-15s|\n", "学生名称");
+                    printf_s(" ---------------\n");
 
                 }
             }
     } else {
-        printf("                        ");
-        printf("名单为空");
-        for (i = 0; i < 20; i++) printf("\n");
-        printf("                               ");
+        printf_s("                        ");
+        printf_s("名单为空");
+        for (i = 0; i < 20; i++) printf_s("\n");
+        printf_s("                               ");
         ssms_console_setDifferentColor();
-        printf("按任意键返回");
+        printf_s("按任意键返回");
         ssms_console_setNormalColor();
-        printf("\n");
-        getch();
+        printf_s("\n");
+        _getch();
     }
     return 0;
 }
@@ -347,29 +353,29 @@ int ssms_dataprinter_printScoreNotPassNames(SSMS_NAMES_VEC names) {
 
 int ssms_dataprinter_printScorePassSubsectionTable(int *subsection) {
     int i = 0;
-    printf("登记考生人数： %d\n", subsection[12]);
-    printf(" -----------------------------------------------------------------------------------\n");
-    printf("考生成绩分布表：\n");
-    printf("             -----------------------------------------------------\n");
-    printf("            |%-8s|%-8s|%-8s|%-8s|%-8s|%-8s|\n", "0分", "1-9分", "10-19分", "20-29分", "30-39分", "40-49分");
-    printf("             -----------------------------------------------------\n");
-    printf("            ");
+    printf_s("登记考生人数： %d\n", subsection[12]);
+    printf_s(" -----------------------------------------------------------------------------------\n");
+    printf_s("考生成绩分布表：\n");
+    printf_s("             -----------------------------------------------------\n");
+    printf_s("            |%-8s|%-8s|%-8s|%-8s|%-8s|%-8s|\n", "0分", "1-9分", "10-19分", "20-29分", "30-39分", "40-49分");
+    printf_s("             -----------------------------------------------------\n");
+    printf_s("            ");
     for (; i < 6; i++) {
-        printf("|%-8d", subsection[i]);
+        printf_s("|%-8d", subsection[i]);
     }
-    printf("|\n");
-    printf("             -----------------------------------------------------\n");
-    printf("\n");
-    printf("             -----------------------------------------------------\n");
-    printf("            |%-8s|%-8s|%-8s|%-8s|%-8s|%-8s|\n", "50-59分", "60-69分", "71-79分", "80-89分", "90-99分", "100分");
-    printf("             -----------------------------------------------------\n");
-    printf("            ");
+    printf_s("|\n");
+    printf_s("             -----------------------------------------------------\n");
+    printf_s("\n");
+    printf_s("             -----------------------------------------------------\n");
+    printf_s("            |%-8s|%-8s|%-8s|%-8s|%-8s|%-8s|\n", "50-59分", "60-69分", "71-79分", "80-89分", "90-99分", "100分");
+    printf_s("             -----------------------------------------------------\n");
+    printf_s("            ");
     for (; i < 12; i++) {
-        printf("|%-8d", subsection[i]);
+        printf_s("|%-8d", subsection[i]);
     }
-    printf("|\n");
-    printf("             -----------------------------------------------------\n");
-    printf(" -----------------------------------------------------------------------------------\n");
+    printf_s("|\n");
+    printf_s("             -----------------------------------------------------\n");
+    printf_s(" -----------------------------------------------------------------------------------\n");
     return 0;
 }
 
@@ -394,22 +400,22 @@ int ssms_dataprinter_printScorePassSubsectionGraph(int *subsection) {
     tmp_arr[9] = (int) (((double) (subsection[10] + subsection[11])) / max * 19);
 
 
-    printf("       -------------------------------------------------------------------\n");
+    printf_s("       -------------------------------------------------------------------\n");
     for (int i = 19; i > 0; i--) {
-        printf("%6d|    ", (int) ((double) max / 19 * i));
+        printf_s("%6d|    ", (int) ((double) max / 19 * i));
         for (int j = 0; j < 10; j++) {
             if ((tmp_arr[j] - i) >= 0) {
-                printf("■■■");
+                printf_s("■■■");
             } else {
-                printf("　　　");
+                printf_s("　　　");
             }
         }
-        printf("   |\n");
+        printf_s("   |\n");
     }
-//    printf("      |    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   |\n");
-    printf("      | --+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-- |\n");
-    printf("      |  %-6s%-6s%-6s%-6s%-6s%-6s%-6s%-6s%-6s%-6s%-5s|\n", "0分", "10分", "20分", "30分", "40分", "50分", "60分",
+//    printf_s("      |    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   |\n");
+    printf_s("      | --+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-- |\n");
+    printf_s("      |  %-6s%-6s%-6s%-6s%-6s%-6s%-6s%-6s%-6s%-6s%-5s|\n", "0分", "10分", "20分", "30分", "40分", "50分", "60分",
            "70分", "80分", "90分", "100分");
-    printf("      ---------------------------------------------------------------------\n");
+    printf_s("      ---------------------------------------------------------------------\n");
     return 0;
 }

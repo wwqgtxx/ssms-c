@@ -79,10 +79,10 @@ char *errmsg = 0;
 int ssms_initDatabase() {
     ret = sqlite3_open("./sqlite3.db", &db);
     if (ret != SQLITE_OK) {
-        fprintf(stderr, "Cannot open db: %s\n", sqlite3_errmsg(db));
+        fprintf_s(stderr, "Cannot open db: %s\n", sqlite3_errmsg(db));
         return 1;
     }
-    printf("Open database\n");
+    printf_s("Open database\n");
     return 0;
 }
 
@@ -102,20 +102,20 @@ int ssms_closeDatabase() {
     sqlite3_finalize(select_all_score_data_stmt);
     sqlite3_close(db);
 
-    printf("Close database\n");
+    printf_s("Close database\n");
     return 0;
 }
 
 int ssms_initTable() {
     ret = sqlite3_exec(db, sql_create_student_table, NULL, NULL, &errmsg);
     if (ret != SQLITE_OK) {
-        fprintf(stderr, "create table fail: %s\n", errmsg);
+        fprintf_s(stderr, "create table fail: %s\n", errmsg);
         return 1;
     }
     sqlite3_free(errmsg);
     ret = sqlite3_exec(db, sql_create_score_table, NULL, NULL, &errmsg);
     if (ret != SQLITE_OK) {
-        fprintf(stderr, "create table fail: %s\n", errmsg);
+        fprintf_s(stderr, "create table fail: %s\n", errmsg);
         return 1;
     }
     sqlite3_free(errmsg);
@@ -173,9 +173,9 @@ int ssms_insertStudent(SSMS_STUDENT_PTR student) {
     ret = sqlite3_step(insert_student_data_stmt);
     if (ret != SQLITE_DONE) {
         if (ret == SQLITE_CONSTRAINT) {
-            fprintf(stderr, "Insert constraint check failed : %s \n", sqlite3_errmsg(db));
+            fprintf_s(stderr, "Insert constraint check failed : %s \n", sqlite3_errmsg(db));
         } else {
-            fprintf(stderr, "Insert failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
+            fprintf_s(stderr, "Insert failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
         }
 
         return 1;
@@ -248,10 +248,10 @@ int ssms_updateStudent(SSMS_STUDENT_PTR student) {
 
     ret = sqlite3_step(update_student_data_stmt);
     if (ret != SQLITE_DONE) {
-        fprintf(stderr, "Update failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
+        fprintf_s(stderr, "Update failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
         return 1;
     }
-    printf("Update records num: %i\n", sqlite3_changes(db));
+    printf_s("Update records num: %i\n", sqlite3_changes(db));
     return 0;
 }
 
@@ -262,10 +262,10 @@ int ssms_deleteStudentByName(char *name) {
 
     ret = sqlite3_step(delete_student_data_by_name_stmt);
     if (ret != SQLITE_DONE) {
-        fprintf(stderr, "Delete failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
+        fprintf_s(stderr, "Delete failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
         return 1;
     }
-    printf("Deleted records num: %i\n", sqlite3_changes(db));
+    printf_s("Deleted records num: %i\n", sqlite3_changes(db));
     return 0;
 }
 
@@ -276,10 +276,10 @@ int ssms_deleteStudentById(sqlite_int64 id) {
 
     ret = sqlite3_step(delete_student_data_by_id_stmt);
     if (ret != SQLITE_DONE) {
-        fprintf(stderr, "Delete failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
+        fprintf_s(stderr, "Delete failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
         return 1;
     }
-    printf("Deleted records num: %i\n", sqlite3_changes(db));
+    printf_s("Deleted records num: %i\n", sqlite3_changes(db));
     return 0;
 }
 
@@ -289,9 +289,9 @@ int ssms_deleteStudent(SSMS_STUDENT_PTR student) {
 
 int ssms_deleteStudents() {
     ret = sqlite3_exec(db, sql_delete_all_student_data, NULL, NULL, &errmsg);
-    printf("Delete records: %s\n", ret == SQLITE_OK ? "OK" : "FAIL");
+    printf_s("Delete records: %s\n", ret == SQLITE_OK ? "OK" : "FAIL");
     if (ret == SQLITE_OK) {
-        printf("Deleted records num: %i\n", sqlite3_changes(db));
+        printf_s("Deleted records num: %i\n", sqlite3_changes(db));
     }
     return 0;
 }
@@ -301,15 +301,15 @@ int ssms_printStudentsFromDb() {
     int j, n_row, n_column, index;
     ret = sqlite3_get_table(db, sql_select_all_student_data, &db_result, &n_row, &n_column, &errmsg);
     if (ret == SQLITE_OK) {
-        printf("query %i records.\n", n_row);
+        printf_s("query %i records.\n", n_row);
         index = n_column;
         for (int i = 0; i < n_row; i++) {
-            printf("[%2i]", i);
+            printf_s("[%2i]", i);
             for (j = 0; j < n_column; j++) {
-                printf(" %s", db_result[index]);
+                printf_s(" %s", db_result[index]);
                 index++;
             }
-            printf("\n");
+            printf_s("\n");
         }
     }
     sqlite3_free_table(db_result);
@@ -359,9 +359,9 @@ int ssms_insertScore(SSMS_SCORE_PTR score) {
     ret = sqlite3_step(insert_score_data_stmt);
     if (ret != SQLITE_DONE) {
         if (ret == SQLITE_CONSTRAINT) {
-            fprintf(stderr, "Insert constraint check failed : %s \n", sqlite3_errmsg(db));
+            fprintf_s(stderr, "Insert constraint check failed : %s \n", sqlite3_errmsg(db));
         } else {
-            fprintf(stderr, "Insert failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
+            fprintf_s(stderr, "Insert failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
         }
 
         return 1;
@@ -424,10 +424,10 @@ int ssms_updateScore(SSMS_SCORE_PTR score) {
 
     ret = sqlite3_step(update_score_data_stmt);
     if (ret != SQLITE_DONE) {
-        fprintf(stderr, "Update failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
+        fprintf_s(stderr, "Update failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
         return 1;
     }
-    printf("Update records num: %i\n", sqlite3_changes(db));
+    printf_s("Update records num: %i\n", sqlite3_changes(db));
     return 0;
 }
 
@@ -438,10 +438,10 @@ int ssms_deleteScoreById(sqlite_int64 id) {
 
     ret = sqlite3_step(delete_score_data_stmt);
     if (ret != SQLITE_DONE) {
-        fprintf(stderr, "Delete failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
+        fprintf_s(stderr, "Delete failed : <%s> %s \n", sqlite3_errstr(ret), sqlite3_errmsg(db));
         return 1;
     }
-    printf("Deleted records num: %i\n", sqlite3_changes(db));
+    printf_s("Deleted records num: %i\n", sqlite3_changes(db));
     return 0;
 }
 
@@ -452,9 +452,9 @@ int ssms_deleteScore(SSMS_SCORE_PTR score) {
 
 int ssms_deleteScores() {
     ret = sqlite3_exec(db, sql_delete_all_score_data, NULL, NULL, &errmsg);
-    printf("Delete records: %s\n", ret == SQLITE_OK ? "OK" : "FAIL");
+    printf_s("Delete records: %s\n", ret == SQLITE_OK ? "OK" : "FAIL");
     if (ret == SQLITE_OK) {
-        printf("Deleted records num: %i\n", sqlite3_changes(db));
+        printf_s("Deleted records num: %i\n", sqlite3_changes(db));
     }
     return 0;
 }
@@ -464,15 +464,15 @@ int ssms_printScoreFromDb() {
     int j, n_row, n_column, index;
     ret = sqlite3_get_table(db, sql_select_all_score_data, &db_result, &n_row, &n_column, &errmsg);
     if (ret == SQLITE_OK) {
-        printf("query %i records.\n", n_row);
+        printf_s("query %i records.\n", n_row);
         index = n_column;
         for (int i = 0; i < n_row; i++) {
-            printf("[%2i]", i);
+            printf_s("[%2i]", i);
             for (j = 0; j < n_column; j++) {
-                printf(" %s", db_result[index]);
+                printf_s(" %s", db_result[index]);
                 index++;
             }
-            printf("\n");
+            printf_s("\n");
         }
     }
     sqlite3_free_table(db_result);

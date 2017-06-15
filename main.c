@@ -12,7 +12,6 @@
 int main() {
     ssms_console_init();
     ssms_console_clean();
-    printf("开始!\n");
 
     if (ssms_initDatabase() != 0 || ssms_initTable() != 0 || ssms_initStmt() != 0) {
         return 1;
