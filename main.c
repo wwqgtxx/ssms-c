@@ -17,5 +17,6 @@ int main() {
         return 1;
     }
     ssms_cli_main_loop();
+    ssms_closeDatabase();
     return 0;
 }
